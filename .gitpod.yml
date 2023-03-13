@@ -1,15 +1,18 @@
+# specify target image
+image:
+  file: .gitpod.Dockerfile
+
 # List the start up tasks. Learn more: https://www.gitpod.io/docs/configure/workspaces/tasks
 tasks:
   - name: LocalStack
     init: pip install localstack
     command: localstack start
       
-  - name: AWS CLI and SAM
+  - name: AWS CLI local and SAM
     init: >
       pip install aws-sam-cli &&
       pip install aws-sam-cli-local &&
-      pip install awscli &&
-      pip install awscli-local
+      # pip install awscli-local
 
   - init: pip install -r requirements.txt
 
