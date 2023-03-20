@@ -8,15 +8,13 @@ from pydantic import BaseModel, Field
 from typing import List, Dict
 
 
-
 class ISINFormatError(Exception):
-    """Customs error which is raised when the ISIN doesn't have the correct format"""
+    """Custom error which is raised when the ISIN doesn't have the correct format"""
 
     def __init__(self, value: str, message: str) -> None:
         self.value = value
         self.message = message
         super().__init__(message)
-
 
 
 class FreetradeModel(BaseModel):
@@ -34,21 +32,32 @@ class FreetradeModel(BaseModel):
     @pydantic.validator("isin")
     @classmethod
     def isin_valid(cls, value):
-        raise ISINFormatError(
-            value=value, 
-            message="ISIN does not meet the required format."
-        )
+        """checks the ISIN is correct, raising ISINFormatError otherwise"""
+
+        def checksum(value):
+            converted_alpha = "".join([
+                v if v.isdigit() else str(ord(v) - 55)
+                for v in value[:-1]
+            ])
+            check_digit = int(value[-1])
+            digits = [int(d) for d in converted_alpha[::-1]]
+            checksum = 0
+            for d in digits[::2]:
+                checksum += sum([int(x) for x in str(2 * d)])
+            checksum += sum(digits[1::2])
+            return (checksum + check_digit) % 10 == 0
+
+        if value == "":
+            raise ISINFormatError(value=value, message="ISIN is missing.")
+
+        if not value[-1].isdigit():
+            raise ISINFormatError(value=value, message="ISIN checksum digit incorrect.")
+
+        if not checksum(value):
+            raise ISINFormatError(value=value, message="ISIN checksum failure.")
+
         return value
 
-def luhn_algo(num):
-    digits = [int(d) for d in str(num)]
-    odd_digits = digits[-1::-2]
-    even_digits = digits[-2::-2]
-    checksum = 0
-    checksum += sum(odd_digits)
-    for d in even_digits:
-        checksum += sum([int(x) for x in str(2 * d)])
-    return checksum % 10 == 0
 
 def get_stock_list() -> List[Dict]:
     """Downloads stock list from Freetrade Google Sheet, and returns as dictionary"""
@@ -77,7 +86,12 @@ def lambda_handler(event, context):
             # if does not then skip e.g. ETF or missing key data
             # log any issues
             # else continue
-        model = FreetradeModel(**record)
+        try:
+            model = FreetradeModel(**record)
+        except ISINFormatError:
+            
+
+
         print(model)
 
 
