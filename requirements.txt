@@ -2,3 +2,4 @@ pytest
 pytest-xdist
 pandas
 boto3
+pydantic
