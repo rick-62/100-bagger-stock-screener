@@ -8,6 +8,12 @@ from pydantic import BaseModel, Field
 from typing import List, Dict
 
 
+LIMIT = 5
+SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
+REQUESTS_CACHE_TTL = 1800  # seconds
+
+
+
 class ISINFormatError(Exception):
     """Custom error which is raised when the ISIN doesn't have the correct format"""
 
@@ -59,20 +65,42 @@ class FreetradeModel(BaseModel):
         return value
 
 
+
+    # continue with freetrade model
+        # XNAS	No change	
+        # XNYS	No chance	
+        # XLON	L	
+        # XETR	DE	lowercase suffix: d
+        # PINK	No change	
+        # XHEL	HE	lowercase suffix: h
+        # XLIS	LS	lowercase suffix: u
+        # XAMS	AS	lowercase suffix: a
+        # XBRU	BR	lowercase suffix: b
+        # XSTO	Lookup	Lookup
+        # XWBO	Lookup	Lookup
+    # Convert symbols to yahoo symbol, using MIC codes
+    # remvove lowercas suffix from symbol
+    
+
+
+
+
+
+
 def get_stock_list() -> List[Dict]:
     """Downloads stock list from Freetrade Google Sheet, and returns as dictionary"""
 
-    return (
-        pd
-        .read_csv(f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv")
-        .to_dict(orient='records')
-    )
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+
+    return pd.read_csv(url).to_dict(orient='records')
 
 
 def lambda_handler(event, context):
 
-    LIMIT = 5
-    SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
+    requests_cache.install_cache(
+        "stock_requests_cache", 
+        expire_after=REQUESTS_CACHE_TTL
+    )
 
     stock_list = get_stock_list()
 
@@ -115,7 +143,8 @@ def lambda_handler(event, context):
 
 
     
-
+if __name__=="__main__":
+    pass
 
 
 

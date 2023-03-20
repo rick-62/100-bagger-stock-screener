@@ -1,7 +1,5 @@
 import pytest
 
-from types import MappingProxyType
-
 from functions.stock_scraper import app
 
 @pytest.mark.parametrize("value", [
@@ -55,6 +53,3 @@ def test_FreetradeModel_invalid(FreetradeModel_valid_input, key, value, exceptio
     with pytest.raises(exception):
         app.FreetradeModel(**FreetradeModel_valid_input)
 
-
-def test_get_stock_list():
-    pass
