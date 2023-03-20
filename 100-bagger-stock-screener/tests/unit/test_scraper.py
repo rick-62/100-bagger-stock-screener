@@ -1,9 +1,8 @@
 import pytest
 
-from functions.stock_scraper import app
+from types import MappingProxyType
 
-# test pydantic model to esnrue working as intended
-# test get stock list
+from functions.stock_scraper import app
 
 @pytest.mark.parametrize("value", [
     "US7835132033", 
@@ -28,11 +27,33 @@ def test_isin_invalid(value):
         app.FreetradeModel.isin_valid(value)
     
 
+@pytest.fixture
+def FreetradeModel_valid_input():
+    return {
+        "Title": "test_title",
+        "Long_Title": "test_long_title",
+        "Subtitle": "test_subtitle",
+        "Currency": "GBP",
+        "ISA_eligible": True,
+        "ISIN": "IE00BCRY6557",
+        "MIC": "XLON",
+        "Symbol": "EXAI",
+        "Fractional_Enabled": True,
+    }
 
-# test FreeTradeModel
-# try to break it
-# what is error message when failure - include in main code, as exception
-# try to trigger isin validty checks
+def test_FreetradeModel_valid(FreetradeModel_valid_input):
+    app.FreetradeModel(**FreetradeModel_valid_input)
+
+@pytest.mark.parametrize("key, value, exception", [
+    ("Title", None, app.pydantic.error_wrappers.ValidationError),
+    ("ISA_eligible", "not truthy", app.pydantic.error_wrappers.ValidationError),
+    ("ISIN", "US7835132034", app.ISINFormatError)
+])
+def test_FreetradeModel_invalid(FreetradeModel_valid_input, key, value, exception):
+    FreetradeModel_valid_input[key] = value
+
+    with pytest.raises(exception):
+        app.FreetradeModel(**FreetradeModel_valid_input)
 
 
 def test_get_stock_list():

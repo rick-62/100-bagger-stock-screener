@@ -88,8 +88,8 @@ def lambda_handler(event, context):
             # else continue
         try:
             model = FreetradeModel(**record)
-        except ISINFormatError:
-            
+        except (ISINFormatError, pydantic.error_wrappers.ValidationError):
+            pass
 
 
         print(model)
