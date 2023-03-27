@@ -1,5 +1,9 @@
 import pytest
 
+from pytest import MonkeyPatch
+
+from unittest.mock import patch, MagicMock
+
 from functions.stock_scraper import app
 
 @pytest.mark.parametrize("value", [
@@ -36,10 +40,23 @@ def test_isin_invalid(value):
     ("XWBO", "ANDRv", "ANDR.VI")
 ])
 def test_yahoo_symbol(mic, symbol, yahoo_symbol):
-    result = app.FreetradeModel.create_yahoo_symbol(None,
+    result = app.FreetradeModel.create_yahoo_symbol(
+        None,
         {"mic": mic, "symbol": symbol}
     )
     assert result == yahoo_symbol
+
+
+def test_isa_eligibility(monkeypatch):
+
+    monkeypatch.setattr('functions.stock_scraper.app.ISA_ELIGIBLE', True)
+    app.FreetradeModel.isa_eligibility(True)
+    with pytest.raises(app.ISAEligibilityError):
+        app.FreetradeModel.isa_eligibility(False)
+
+    monkeypatch.setattr('functions.stock_scraper.app.ISA_ELIGIBLE', False)
+    app.FreetradeModel.isa_eligibility(False)
+    app.FreetradeModel.isa_eligibility(True)
 
 
 @pytest.fixture

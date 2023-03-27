@@ -24,9 +24,17 @@ MIC_REFERENCE = {
 }
 
 
-
 class ISINFormatError(Exception):
     """Custom error which is raised when the ISIN doesn't have the correct format"""
+
+    def __init__(self, value: str, message: str) -> None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
+
+class ISAEligibilityError(Exception):
+    """Custom error which is raised when not ISA eligible"""
 
     def __init__(self, value: str, message: str) -> None:
         self.value = value
@@ -45,6 +53,17 @@ class FreetradeModel(BaseModel):
     symbol: str = Field(..., alias="Symbol")
     fractional_enabled: bool = Field(..., alias="Fractional_Enabled")
     yahoo_symbol: str = None
+
+
+    @pydantic.validator("isa_eligible")
+    @classmethod
+    def isa_eligibility(cls, value):
+        """Determines whether stock is valid based on ISA eligiblity"""
+
+        if ISA_ELIGIBLE and not value:
+            raise ISAEligibilityError(value=value, message="Requires ISA eligibility.")
+
+        return value
 
 
     @pydantic.validator("isin")
@@ -113,12 +132,9 @@ class FreetradeModel(BaseModel):
         return yh
 
         
-
 def get_stock_list() -> List[Dict]:
-    """Downloads stock list from Freetrade Google Sheet, and returns as dictionary"""
-
+    """Downloads stock list from Freetrade Google Sheet, and returns as dict"""
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-
     return pd.read_csv(url).to_dict(orient='records')
 
 
@@ -136,18 +152,14 @@ def lambda_handler(event, context):
     count = 0
     for record in stock_list:
         
-
-        # check data satifies pydantic data model
-            # if does not then skip e.g. ETF or missing key data
-            # log any issues
-            # else continue
         try:
             model = FreetradeModel(**record)
-        except (ISINFormatError, pydantic.error_wrappers.ValidationError):
-            pass
-
-
-        print(model)
+        except ISINFormatError:
+            pass        # TODO: log this
+        except pydantic.error_wrappers.ValidationError:
+            continue    # TODO: log this
+        except ISAEligibilityError:
+            continue    # TODO: log this
 
 
         count += 1
