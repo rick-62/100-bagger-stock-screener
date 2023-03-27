@@ -77,9 +77,9 @@ class FreetradeModel(BaseModel):
         return value
 
 
-    @pydantic.validator("yahoo_symbol", pre=True)
+    @pydantic.validator("yahoo_symbol", always=True)
     @classmethod
-    def create_yahoo_symbol(cls, values):
+    def create_yahoo_symbol(cls, _, values):
         """
         Convert Freetrade stock symbol based on exchange (MIC),
         ensuring it is adjusted for scraping Yahoo:
@@ -113,27 +113,6 @@ class FreetradeModel(BaseModel):
         return yh
 
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # Convert symbols to yahoo symbol, using MIC codes
-    # remvove lowercas suffix from symbol
-    
-
-
-
-
-
 
 def get_stock_list() -> List[Dict]:
     """Downloads stock list from Freetrade Google Sheet, and returns as dictionary"""

@@ -36,7 +36,7 @@ def test_isin_invalid(value):
     ("XWBO", "ANDRv", "ANDR.VI")
 ])
 def test_yahoo_symbol(mic, symbol, yahoo_symbol):
-    result = app.FreetradeModel.create_yahoo_symbol(
+    result = app.FreetradeModel.create_yahoo_symbol(None,
         {"mic": mic, "symbol": symbol}
     )
     assert result == yahoo_symbol
@@ -58,7 +58,8 @@ def FreetradeModel_valid_input():
 
 
 def test_FreetradeModel_valid(FreetradeModel_valid_input):
-    app.FreetradeModel(**FreetradeModel_valid_input)
+    model = app.FreetradeModel(**FreetradeModel_valid_input)
+    assert model.yahoo_symbol == "EXAI.L"
 
 
 @pytest.mark.parametrize("key, value, exception", [
