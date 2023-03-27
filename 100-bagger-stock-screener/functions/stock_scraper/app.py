@@ -11,6 +11,17 @@ from typing import List, Dict
 LIMIT = 5
 SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
 REQUESTS_CACHE_TTL = 1800  # seconds
+ISA_ELIGIBLE = True
+MIC_REFERENCE = {
+    "XLON": ".L",
+    "XETR": ".DE",
+    "XHEL": ".HE",
+    "XLIS": ".LS",
+    "XAMS": ".AS",
+    "XBRU": ".BR",
+    "XWBO": ".VI",
+    "XSTO": ".ST",
+}
 
 
 
@@ -33,6 +44,7 @@ class FreetradeModel(BaseModel):
     mic: str = Field(..., alias="MIC")
     symbol: str = Field(..., alias="Symbol")
     fractional_enabled: bool = Field(..., alias="Fractional_Enabled")
+    yahoo_symbol: str = None
 
 
     @pydantic.validator("isin")
@@ -65,19 +77,55 @@ class FreetradeModel(BaseModel):
         return value
 
 
+    @pydantic.validator("yahoo_symbol", pre=True)
+    @classmethod
+    def create_yahoo_symbol(cls, values):
+        """
+        Convert Freetrade stock symbol based on exchange (MIC),
+        ensuring it is adjusted for scraping Yahoo:
+        XNAS	No change	
+        XNYS	No change
+        PINK	No change
+        XLON	suffix: .L	
+        XETR	suffix: .DE     remove suffix: d
+        XHEL	suffix: .HE	    remove suffix: h
+        XLIS	suffix: .LS	    remove suffix: u
+        XAMS	suffix: .AS	    remove suffix: a
+        XBRU	suffix: .BR	    remove suffix: b
+        XWBO	suffix: .VI     remove suffix: v
+        XSTO	suffix: .ST or -A.ST or -B.ST
+        """
 
-    # continue with freetrade model
-        # XNAS	No change	
-        # XNYS	No chance	
-        # XLON	L	
-        # XETR	DE	lowercase suffix: d
-        # PINK	No change	
-        # XHEL	HE	lowercase suffix: h
-        # XLIS	LS	lowercase suffix: u
-        # XAMS	AS	lowercase suffix: a
-        # XBRU	BR	lowercase suffix: b
-        # XSTO	Lookup	Lookup
-        # XWBO	Lookup	Lookup
+        mic = values["mic"]
+        symbol = values["symbol"]
+
+        # Retain only uppercase letters, removing lowercase suffix and "."
+        yh = "".join([i for i in symbol if not i.islower() and i != "."])
+
+        # special case for XSTO
+        if mic == "XSTO":
+            if yh.endswith("A") or yh.endswith("B"): 
+                yh = yh[:-1] + "-" + yh[-1]
+
+        # Append suffix to symbol
+        yh += MIC_REFERENCE.get(mic, "")
+
+        return yh
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
     # Convert symbols to yahoo symbol, using MIC codes
     # remvove lowercas suffix from symbol
     

@@ -18,12 +18,29 @@ def test_isin_valid(value):
     "7835132033", 
     "US7835132034",
     "",
-    "9gjh4395gj"
+    "9gjh4395gj",
+    "SomethingHere"
 ])
 def test_isin_invalid(value):
     with pytest.raises(app.ISINFormatError):
         app.FreetradeModel.isin_valid(value)
-    
+
+
+@pytest.mark.parametrize("mic, symbol, yahoo_symbol", [
+    ("XNAS", "APPL", "APPL"),
+    ("XLON", "FOUR", "FOUR.L"),
+    ("XSTO", "LUMI", "LUMI.ST"),
+    ("XSTO", "LUMB", "LUM-B.ST"),
+    ("XNAS", "PSEC", "PSEC"),
+    ("XETR", "TTR1d", "TTR1.DE"),
+    ("XWBO", "ANDRv", "ANDR.VI")
+])
+def test_yahoo_symbol(mic, symbol, yahoo_symbol):
+    result = app.FreetradeModel.create_yahoo_symbol(
+        {"mic": mic, "symbol": symbol}
+    )
+    assert result == yahoo_symbol
+
 
 @pytest.fixture
 def FreetradeModel_valid_input():
@@ -39,8 +56,10 @@ def FreetradeModel_valid_input():
         "Fractional_Enabled": True,
     }
 
+
 def test_FreetradeModel_valid(FreetradeModel_valid_input):
     app.FreetradeModel(**FreetradeModel_valid_input)
+
 
 @pytest.mark.parametrize("key, value, exception", [
     ("Title", None, app.pydantic.error_wrappers.ValidationError),
