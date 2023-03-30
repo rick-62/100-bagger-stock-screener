@@ -1,11 +1,12 @@
 import os
 import random
 
+import boto3
 import pandas as pd
 import pydantic
 
 from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 LIMIT = 5
@@ -138,7 +139,23 @@ def get_stock_list() -> List[Dict]:
     return pd.read_csv(url).to_dict(orient='records')
 
 
+def record_exists(table: object, value: Optional[str, int], key: str="isin") -> bool:
+    """Checks DynamoDB table for value, returning True/False accordingly"""
+    response = table.get_item(key={key: value})
+
+    if "Item" in response:
+        return True
+    else:
+        return False
+
+    # TODO: test using localstack
+
+
+
 def lambda_handler(event, context):
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('your_table_name')
 
     requests_cache.install_cache(
         "stock_requests_cache", 
@@ -155,7 +172,7 @@ def lambda_handler(event, context):
         try:
             model = FreetradeModel(**record)
         except ISINFormatError:
-            pass        # TODO: log this
+            continue    # TODO: log this
         except pydantic.error_wrappers.ValidationError:
             continue    # TODO: log this
         except ISAEligibilityError:
@@ -163,9 +180,10 @@ def lambda_handler(event, context):
 
 
         count += 1
-        if count > 4:
+        if count > LIMIT:
             break
 
+        
         # check if stock already exists in dynamoDB
             # if does then skip
             # else continue
