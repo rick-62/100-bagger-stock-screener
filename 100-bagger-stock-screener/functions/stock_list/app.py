@@ -166,6 +166,8 @@ def lambda_handler(event, context):
 
     random.shuffle(stock_list)
 
+    chosen_records = []
+
     count = 0
     for record in stock_list:
         
@@ -177,16 +179,24 @@ def lambda_handler(event, context):
             continue    # TODO: log this
         except ISAEligibilityError:
             continue    # TODO: log this
+        
+        # check if stock already exists in dynamoDB, 
+        # using record exists function
+            # if does then skip
+            # else continue
 
+        chosen_records.append(record)
 
         count += 1
         if count > LIMIT:
             break
 
+    return chosen_records
+
+
+
         
-        # check if stock already exists in dynamoDB
-            # if does then skip
-            # else continue
+        
     
 
 
@@ -198,10 +208,6 @@ def lambda_handler(event, context):
     # Update DynamoDB table accordingly
     # and repeat until a defined limit (defined in OS environment?)
 
-
-    
-if __name__=="__main__":
-    pass
 
 
 

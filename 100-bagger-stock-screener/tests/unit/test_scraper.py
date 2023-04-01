@@ -4,7 +4,7 @@ import pandas as pd
 from pytest import MonkeyPatch
 from unittest.mock import patch, MagicMock, Mock
 
-from functions.stock_scraper import app
+from functions.stock_list import app
 
 @pytest.mark.parametrize("value", [
     "US7835132033", 
@@ -49,12 +49,12 @@ def test_yahoo_symbol(mic, symbol, yahoo_symbol):
 
 def test_isa_eligibility(monkeypatch):
 
-    monkeypatch.setattr('functions.stock_scraper.app.ISA_ELIGIBLE', True)
+    monkeypatch.setattr('functions.stock_list.app.ISA_ELIGIBLE', True)
     app.FreetradeModel.isa_eligibility(True)
     with pytest.raises(app.ISAEligibilityError):
         app.FreetradeModel.isa_eligibility(False)
 
-    monkeypatch.setattr('functions.stock_scraper.app.ISA_ELIGIBLE', False)
+    monkeypatch.setattr('functions.stock_list.app.ISA_ELIGIBLE', False)
     app.FreetradeModel.isa_eligibility(False)
     app.FreetradeModel.isa_eligibility(True)
 
@@ -91,7 +91,7 @@ def test_FreetradeModel_invalid(FreetradeModel_valid_input, key, value, exceptio
         app.FreetradeModel(**FreetradeModel_valid_input)
 
 
-@patch("functions.stock_scraper.app.pd.read_csv")
+@patch("functions.stock_list.app.pd.read_csv")
 def test_get_stock_list(read_csv_mock: Mock):
 
     read_csv_mock.return_value = pd.DataFrame(
@@ -103,3 +103,4 @@ def test_get_stock_list(read_csv_mock: Mock):
         {'foo': 2, 'bar': 'b'},
         {'foo': 3, 'bar': 'c'},
     ]
+
