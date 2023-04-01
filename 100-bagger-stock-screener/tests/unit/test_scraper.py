@@ -1,8 +1,8 @@
 import pytest
+import pandas as pd
 
 from pytest import MonkeyPatch
-
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 
 from functions.stock_scraper import app
 
@@ -90,3 +90,16 @@ def test_FreetradeModel_invalid(FreetradeModel_valid_input, key, value, exceptio
     with pytest.raises(exception):
         app.FreetradeModel(**FreetradeModel_valid_input)
 
+
+@patch("functions.stock_scraper.app.pd.read_csv")
+def test_get_stock_list(read_csv_mock: Mock):
+
+    read_csv_mock.return_value = pd.DataFrame(
+        {"foo": [1, 2, 3], "bar": ["a", "b", "c"]}
+    )
+
+    assert app.get_stock_list() == [
+        {'foo': 1, 'bar': 'a'},
+        {'foo': 2, 'bar': 'b'},
+        {'foo': 3, 'bar': 'c'},
+    ]

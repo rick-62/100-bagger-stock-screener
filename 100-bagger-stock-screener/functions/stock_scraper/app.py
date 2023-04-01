@@ -6,7 +6,7 @@ import pandas as pd
 import pydantic
 
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 
 LIMIT = 5
@@ -135,11 +135,11 @@ class FreetradeModel(BaseModel):
         
 def get_stock_list() -> List[Dict]:
     """Downloads stock list from Freetrade Google Sheet, and returns as dict"""
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-    return pd.read_csv(url).to_dict(orient='records')
+    endpoint = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+    return pd.read_csv(endpoint).to_dict(orient='records')
 
 
-def record_exists(table: object, value: Optional[str, int], key: str="isin") -> bool:
+def record_exists(table: object, value: Union[str, int], key: str="isin") -> bool:
     """Checks DynamoDB table for value, returning True/False accordingly"""
     response = table.get_item(key={key: value})
 
