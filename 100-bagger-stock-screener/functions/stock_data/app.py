@@ -1,3 +1,7 @@
+
+## IN PROGRESS ##
+
+
 import os
 import random
 
@@ -9,21 +13,6 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Union
 
 
-LIMIT = 5
-SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
-REQUESTS_CACHE_TTL = 1800  # seconds
-ISA_ELIGIBLE = True
-MIC_REFERENCE = {
-    "XLON": ".L",
-    "XETR": ".DE",
-    "XHEL": ".HE",
-    "XLIS": ".LS",
-    "XAMS": ".AS",
-    "XBRU": ".BR",
-    "XWBO": ".VI",
-    "XSTO": ".ST",
-}
-
 
 class ISINFormatError(Exception):
     """Custom error which is raised when the ISIN doesn't have the correct format"""
@@ -34,16 +23,6 @@ class ISINFormatError(Exception):
         super().__init__(message)
 
 
-class ISAEligibilityError(Exception):
-    """Custom error which is raised when not ISA eligible"""
-
-    def __init__(self, value: str, message: str) -> None:
-        self.value = value
-        self.message = message
-        super().__init__(message)
-
-
-# TODO: check and exclude ETFs, commodities etc
 
 class FreetradeModel(BaseModel):
     title: str = Field(..., alias="Title")
@@ -134,96 +113,45 @@ class FreetradeModel(BaseModel):
 
         return yh
 
-        
-def get_stock_list() -> List[Dict]:
-    """Downloads stock list from Freetrade Google Sheet, and returns as dict"""
-
-    endpoint = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-
-    return pd.read_csv(endpoint).to_dict(orient='records')
-
-
-def record_exists(table: object, value: Union[str, int], key: str="isin") -> bool:
-    """Checks DynamoDB table for value, returning True/False accordingly"""
-
-    response = table.get_item(key={key: value})
-
-    if "Item" in response:
-        return True
-    else:
-        return False
-
-    # TODO: test using localstack
 
 
 
 def lambda_handler(event, context):
-    """Lambda function which downloads and checks stocks from Freetrade stock list,
-    returning a sample (5) random eligible stocks. 
+    """Lambda function which downloads Yahoo JSON data for a provided stock,
+    and returning original data, plus additional. 
 
-    Loops through records in shuffled table, filtering stocks based on:
-    - ISA eligibility
-    - companies only
-    - validated ISIN
-    - expected data types
+    Downloads key JSON data from Yahoo:
+    - blah
+    - blah
+    - blah
 
     Additionally, creates new data:
-    - Yahoo symbol, based on symbol & MIC
-
-    Once desired number of eligible stocks has been reached, list is returned.    
-
+    - scores?
+    - amounts?
+    - values?
+  
     Parameters
     ----------
     event: dict, required
-        Input event to the Lambda function
+        Input event to the Lambda function, providing stock data
 
     context: object, required
         Lambda Context runtime methods and attributes
 
     Returns
     ------
-        list[dict]: List of eligible stocks including basic information
+        dict: stock data provided in form stock:dict[attribute:value]
     """
+    pass
 
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('your_table_name')
+    # try to download key financial data from Yahoo
+        # find exaclt how to download data and from which location
+        # run through pydantic model
+        # Any issues need to be logged
+        # Dpendent on error, if requests issue then fail else try best to get into DB
 
-    requests_cache.install_cache(
-        "stock_requests_cache", 
-        expire_after=REQUESTS_CACHE_TTL
-    )
-
-    stock_list = get_stock_list()
-
-    random.shuffle(stock_list)
-
-    chosen_records = []
-
-    count = 0
-    for record in stock_list:
-        
-        try:
-            model = FreetradeModel(**record)
-        except ISINFormatError:
-            continue    # TODO: log this
-        except pydantic.error_wrappers.ValidationError:
-            continue    # TODO: log this
-        except ISAEligibilityError:
-            continue    # TODO: log this
-        
-        # check if stock already exists in dynamoDB, 
-        # using record exists function
-            # if does then skip
-            # else continue
-
-        chosen_records.append(record)
-
-        count += 1
-        if count > LIMIT:
-            break
-
-    return chosen_records
-
+    # Update DynamoDB table accordingly
+    # and repeat until a defined limit (defined in OS environment?)
 
 
 
