@@ -1,10 +1,37 @@
 
-## IN PROGRESS ##
+import datetime as dt
+
+from typing import List
 
 
-def get_yahoo_json_data():
-    # within session
-    pass
+URL = "https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{symbol}"
+
+
+def calc_future_timestamp(days_from_now: int) -> int:
+    """given a number of days from now, returns integer timestamp""" 
+
+    dt_object = dt.datetime.now()
+    dt_object += dt.timedelta(days=days_from_now)
+    future_timestamp = int(dt_object.timestamp())
+
+    return future_timestamp
+
+
+def get_yahoo_json_data(fields: List[str]):
+    """provided a list of desired fields, returns full JSON response from yahoo"""
+
+    params = {
+        'period1': 493590046,
+        'period2': calc_future_timestamp(150),
+        'type': ",".join(fields),
+    }
+
+    headers = {'user-agent': "Python Web Scraper"}
+
+    response = requests.get(URL, params=params, headers=headers)
+    response.raise_for_status()
+
+    return response.json()
 
 
 
