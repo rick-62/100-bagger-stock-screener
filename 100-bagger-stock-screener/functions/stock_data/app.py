@@ -1,10 +1,9 @@
 
 import datetime as dt
-
-import requests
-
 from typing import List
 
+import requests
+from typeguard import typechecked
 
 URL = "https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{}"
 
@@ -19,8 +18,9 @@ def calc_future_timestamp(days_from_now: int) -> int:
     return future_timestamp
 
 
+@typechecked
 def get_yahoo_json_data(symbol: str, fields: List[str]):
-    """provided a list of desired fields, returns full JSON response from yahoo"""
+    """provided stock symbol & list of desired fields, returns full JSON response from yahoo"""
 
     params = {
         'period1': 493590046,
