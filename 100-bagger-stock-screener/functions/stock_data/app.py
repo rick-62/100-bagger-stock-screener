@@ -1,10 +1,12 @@
 
 import datetime as dt
 
+import requests
+
 from typing import List
 
 
-URL = "https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{symbol}"
+URL = "https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{}"
 
 
 def calc_future_timestamp(days_from_now: int) -> int:
@@ -17,7 +19,7 @@ def calc_future_timestamp(days_from_now: int) -> int:
     return future_timestamp
 
 
-def get_yahoo_json_data(fields: List[str]):
+def get_yahoo_json_data(symbol: str, fields: List[str]):
     """provided a list of desired fields, returns full JSON response from yahoo"""
 
     params = {
@@ -28,11 +30,10 @@ def get_yahoo_json_data(fields: List[str]):
 
     headers = {'user-agent': "Python Web Scraper"}
 
-    response = requests.get(URL, params=params, headers=headers)
+    response = requests.get(URL.format(symbol), params=params, headers=headers)
     response.raise_for_status()
 
     return response.json()
-
 
 
 def lambda_handler(event, context):
@@ -61,16 +62,14 @@ def lambda_handler(event, context):
     ------
         dict: stock data provided in form stock:dict[attribute:value]
     """
-    pass
+    
+    symbol = event["yahoo_symbol"]
 
-    # try to download key financial data from Yahoo
-        # find exaclt how to download data and from which location
-        # run through pydantic model
-        # Any issues need to be logged
-        # Dpendent on error, if requests issue then fail else try best to get into DB
-
-    # Update DynamoDB table accordingly
-    # and repeat until a defined limit (defined in OS environment?)
+    # Best to store as JSON into one dymamo field - see code example in chat 
+    # field flagging if issue with requests or reason for missing data
+    # run through pydantic model to check value etc make sense
+    # Any issues need to be logged
+    # Dpendent on error, if requests issue then fail else try best to get into DB
 
 
 
