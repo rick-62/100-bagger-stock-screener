@@ -6,6 +6,7 @@ import requests
 from typeguard import typechecked
 
 URL = "https://query2.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{}"
+FIELDS = []
 
 
 def calc_future_timestamp(days_from_now: int) -> int:
@@ -64,6 +65,8 @@ def lambda_handler(event, context):
     """
     
     symbol = event["yahoo_symbol"]
+
+    get_yahoo_json_data(symbol, fields)
 
     # Best to store as JSON into one dymamo field - see code example in chat 
     # field flagging if issue with requests or reason for missing data
