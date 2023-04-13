@@ -1,18 +1,18 @@
 import os
 import random
+from typing import Dict, List, Optional, Union
 
 import boto3
 import pandas as pd
 import pydantic
-
+from aws_lambda_powertools import Logger
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Union
 
+logger = Logger()
 
-LIMIT = 5
 SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
-REQUESTS_CACHE_TTL = 1800  # seconds
 ISA_ELIGIBLE = True
+REMOVE_ETF = True
 MIC_REFERENCE = {
     "XLON": ".L",
     "XETR": ".DE",
@@ -43,7 +43,14 @@ class ISAEligibilityError(Exception):
         super().__init__(message)
 
 
-# TODO: check and exclude ETFs, commodities etc
+class ETFFilterError(Exception):
+    """Custom error which is raised when stock is an ETF/ETC"""
+
+    def __init__(self, value: str, message: str) -> None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
 
 class FreetradeModel(BaseModel):
     title: str = Field(..., alias="Title")
@@ -99,6 +106,23 @@ class FreetradeModel(BaseModel):
         return value
 
 
+    @pydantic.validator("long_title", "subtitle")
+    @classmethod
+    def ETF_filter(cls, value):
+        """Filter out ETFs and ETCs from stock list"""
+
+        if not REMOVE_ETF:
+            pass
+
+        elif "ETF" in value:
+            raise ETFFilterError(value=value, message="ETF stock excluded.")
+
+        elif "ETC" in value:
+            raise ETFFilterError(value=value, message="ETC stock excluded.")
+
+        return value
+
+
     @pydantic.validator("yahoo_symbol", always=True)
     @classmethod
     def create_yahoo_symbol(cls, _, values):
@@ -143,34 +167,20 @@ def get_stock_list() -> List[Dict]:
     return pd.read_csv(endpoint).to_dict(orient='records')
 
 
-def record_exists(table: object, value: Union[str, int], key: str="isin") -> bool:
-    """Checks DynamoDB table for value, returning True/False accordingly"""
-
-    response = table.get_item(key={key: value})
-
-    if "Item" in response:
-        return True
-    else:
-        return False
-
-    # TODO: test using localstack
-
-
-
 def lambda_handler(event, context):
     """Lambda function which downloads and checks stocks from Freetrade stock list,
-    returning a sample (5) random eligible stocks. 
+    returning list of eligible stocks. 
 
     Loops through records in shuffled table, filtering stocks based on:
     - ISA eligibility
-    - companies only
+    - companies only (excluding ETFs and ETCs)
     - validated ISIN
     - expected data types
 
     Additionally, creates new data:
     - Yahoo symbol, based on symbol & MIC
 
-    Once desired number of eligible stocks has been reached, list is returned.    
+    List is returned containing eligible records. 
 
     Parameters
     ----------
@@ -185,44 +195,36 @@ def lambda_handler(event, context):
         list[dict]: List of eligible stocks including basic information
     """
 
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('your_table_name')
-
-    requests_cache.install_cache(
-        "stock_requests_cache", 
-        expire_after=REQUESTS_CACHE_TTL
-    )
-
     stock_list = get_stock_list()
 
     random.shuffle(stock_list)
 
-    chosen_records = []
+    filtered_records = []
 
-    count = 0
     for record in stock_list:
         
         try:
             model = FreetradeModel(**record)
-        except ISINFormatError:
-            continue    # TODO: log this
-        except pydantic.error_wrappers.ValidationError:
-            continue    # TODO: log this
-        except ISAEligibilityError:
-            continue    # TODO: log this
+
+        except ISINFormatError as e:
+            logger.warning(f"{record} excluded. Reason: {e}")
+            continue
+
+        except pydantic.error_wrappers.ValidationError as e:
+            logger.warning(f"{record} excluded. Reason: Generic validation error")
+            continue
+
+        except ISAEligibilityError as e:
+            logger.info(f"{record} excluded. Reason: {e}")
+            continue
+
+        except ETFFilterError as e:
+            logger.info(f"{record} excluded. Reason: {e}")
+            continue
         
-        # check if stock already exists in dynamoDB, 
-        # using record exists function
-            # if does then skip
-            # else continue
+        filtered_records.append(record)
 
-        chosen_records.append(record)
-
-        count += 1
-        if count > LIMIT:
-            break
-
-    return chosen_records
+    return filtered_records
 
 
 

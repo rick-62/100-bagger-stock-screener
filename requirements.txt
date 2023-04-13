@@ -3,4 +3,4 @@ pytest-xdist
 pandas
 boto3
 pydantic
-requests-cache
+aws_lambda_powertools 

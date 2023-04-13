@@ -36,6 +36,5 @@ def test_get_yahoo_json_data(mock_get):
         app.get_yahoo_json_data(888, ['annualMarketCap'])
         app.get_yahoo_json_data()
 
-
  
 

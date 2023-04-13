@@ -82,7 +82,7 @@ def test_FreetradeModel_valid(FreetradeModel_valid_input):
 @pytest.mark.parametrize("key, value, exception", [
     ("Title", None, app.pydantic.error_wrappers.ValidationError),
     ("ISA_eligible", "not truthy", app.pydantic.error_wrappers.ValidationError),
-    ("ISIN", "US7835132034", app.ISINFormatError)
+    ("ISIN", "US7835132034", app.ISINFormatError),
 ])
 def test_FreetradeModel_invalid(FreetradeModel_valid_input, key, value, exception):
     FreetradeModel_valid_input[key] = value
@@ -104,3 +104,27 @@ def test_get_stock_list(read_csv_mock: Mock):
         {'foo': 3, 'bar': 'c'},
     ]
 
+
+@pytest.mark.parametrize("desc, result", [
+    ("UCITS ETF", True),
+    ("ETF", True),
+    ("ETC", True),
+    ("Company", False),
+    ("Not Exchange Traded Fund or Commodity", False)
+])
+def test_etf_filter_on(monkeypatch, desc, result):
+
+    monkeypatch.setattr('functions.stock_list.app.REMOVE_ETF', True)
+
+    if result:
+        with pytest.raises(app.ETFFilterError):
+            app.FreetradeModel.ETF_filter(desc)
+
+    else:
+        assert app.FreetradeModel.ETF_filter(desc) == desc
+    
+
+def test_etf_filter_off(monkeypatch):
+    monkeypatch.setattr('functions.stock_list.app.REMOVE_ETF', False)
+    assert app.FreetradeModel.ETF_filter("UCIT ETF") == "UCIT ETF"
+    assert app.FreetradeModel.ETF_filter("Not") == "Not"
