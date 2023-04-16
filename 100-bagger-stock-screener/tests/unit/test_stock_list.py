@@ -128,3 +128,54 @@ def test_etf_filter_off(monkeypatch):
     monkeypatch.setattr('functions.stock_list.app.REMOVE_ETF', False)
     assert app.FreetradeModel.ETF_filter("UCIT ETF") == "UCIT ETF"
     assert app.FreetradeModel.ETF_filter("Not") == "Not"
+
+
+@pytest.fixture
+def FreetradeModel_invalid_input(): # incorrect ISIN
+    return {
+        "Title": "test_title",
+        "Long_Title": "test_long_title",
+        "Subtitle": "test_subtitle",
+        "Currency": "GBP",
+        "ISA_eligible": True,
+        "ISIN": "IE00BCRY655",
+        "MIC": "XLON",
+        "Symbol": "EXAI",
+        "Fractional_Enabled": True,
+    }
+
+
+@pytest.fixture
+def Freetrade_records(
+    FreetradeModel_valid_input, FreetradeModel_invalid_input):
+    return [
+        FreetradeModel_valid_input,
+        FreetradeModel_valid_input,
+        FreetradeModel_invalid_input,
+        FreetradeModel_invalid_input,
+        FreetradeModel_valid_input,
+        FreetradeModel_valid_input,
+        FreetradeModel_valid_input,
+        ]
+
+def test_shuffle_and_filter_stock_list(Freetrade_records):
+    
+    # test filters only one record
+    result = app.shuffle_and_filter_stock_list(Freetrade_records, sample=1)
+    assert len(result) == 1
+    assert result[0]['ISIN'] == "IE00BCRY6557"
+
+    # test filters five records
+    result = app.shuffle_and_filter_stock_list(Freetrade_records, sample=5)
+    assert len(result) == 5
+
+    # test removes invalid inputs
+    result = app.shuffle_and_filter_stock_list(Freetrade_records, sample=100)
+    assert len(result) == 5
+
+    
+
+
+
+
+

@@ -167,6 +167,42 @@ def get_stock_list() -> List[Dict]:
     return pd.read_csv(endpoint).to_dict(orient='records')
 
 
+def shuffle_and_filter_stock_list(records: List[Dict], sample: int=5) -> List[Dict]:
+    """Return a random sample of eligible stocks"""
+    
+    random.shuffle(records)
+
+    filtered_records = []
+
+    for record in records:
+        
+        try:
+            model = FreetradeModel(**record)
+
+        except ISINFormatError as e:
+            logger.warning(f"{record['Title']} excluded. Reason: {e}")
+            continue
+
+        except pydantic.error_wrappers.ValidationError as e:
+            logger.warning(f"{record} excluded. Reason: Generic validation error")
+            continue
+
+        except ISAEligibilityError as e:
+            logger.info(f"{record['Title']} excluded. Reason: {e}")
+            continue
+
+        except ETFFilterError as e:
+            logger.info(f"{record['Title']} excluded. Reason: {e}")
+            continue
+        
+        filtered_records.append(record)
+
+        if len(filtered_records) == sample:
+            break
+    
+    return filtered_records
+
+
 def lambda_handler(event, context):
     """Lambda function which downloads and checks stocks from Freetrade stock list,
     returning list of eligible stocks. 
@@ -195,39 +231,8 @@ def lambda_handler(event, context):
         list[dict]: List of eligible stocks including basic information
     """
 
-    stock_list = get_stock_list()
+    records = get_stock_list()
 
-    random.shuffle(stock_list)
-
-    filtered_records = []
-
-    for record in stock_list:
-        
-        try:
-            model = FreetradeModel(**record)
-
-        except ISINFormatError as e:
-            logger.warning(f"{record} excluded. Reason: {e}")
-            continue
-
-        except pydantic.error_wrappers.ValidationError as e:
-            logger.warning(f"{record} excluded. Reason: Generic validation error")
-            continue
-
-        except ISAEligibilityError as e:
-            logger.info(f"{record} excluded. Reason: {e}")
-            continue
-
-        except ETFFilterError as e:
-            logger.info(f"{record} excluded. Reason: {e}")
-            continue
-        
-        filtered_records.append(record)
+    filtered_records = shuffle_and_filter_stock_list(records, sample=5)
 
     return filtered_records
-
-
-
-
-
-
