@@ -44,6 +44,14 @@ def get_yahoo_json_data(symbol: str, fields: List[str]):
     return response.json()
 
 
+
+class Score:
+
+    def __init__(self, json_response: json):
+        self.result = json_response["timeseries"]["result"]
+
+
+
 def lambda_handler(event, context):
     """Lambda function which downloads Yahoo JSON data for a provided stock,
     and returning original data, plus additional. 

@@ -37,6 +37,19 @@ def test_get_yahoo_json_data(mock_get):
         app.get_yahoo_json_data()
 
 
+def test_score_market_cap():
+    ...
+
+def test_score_pe_pb():
+    ...
+
+def test_score_freecashflow():
+    ...
+
+def test_score_growth():
+    ...
+
+
 
  
 
