@@ -33,33 +33,6 @@ Resources:
         - DynamoDBWritePolicy:
             TableName: !Ref TransactionTable
 
-  StockCheckerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
-    Properties:
-      CodeUri: functions/stock_checker/
-      Handler: app.lambda_handler
-      Runtime: python3.8
-      Architectures:
-        - x86_64
-
-  StockSellerFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/stock_seller/
-      Handler: app.lambda_handler
-      Runtime: python3.8
-      Architectures:
-        - x86_64
-
-  StockBuyerFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/stock_buyer/
-      Handler: app.lambda_handler
-      Runtime: python3.8
-      Architectures:
-        - x86_64
-
   StockListFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
@@ -67,6 +40,16 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.8
       Timeout: 10
+      Architectures:
+        - x86_64
+
+  StockDataFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+    Properties:
+      CodeUri: functions/stock_data/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 6
       Architectures:
         - x86_64
 
