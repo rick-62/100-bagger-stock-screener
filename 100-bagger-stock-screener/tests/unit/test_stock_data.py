@@ -1,4 +1,5 @@
 
+import json
 from unittest.mock import patch
 
 import pytest
@@ -6,6 +7,11 @@ import requests
 from freezegun import freeze_time
 from functions.stock_data import app
 from typeguard import TypeCheckError
+
+
+def load_params_from_json(json_path):
+    with open(json_path) as f:
+        return json.load(f)
 
 
 @freeze_time("2022-01-01")  # timestamp:1640995200
@@ -37,14 +43,39 @@ def test_get_yahoo_json_data(mock_get):
         app.get_yahoo_json_data()
 
 
+@pytest.fixture
+def score_card():
+    response = load_params_from_json('100-bagger-stock-screener/tests/assets/yahoo_response.json')
+    return app.Score(response)
+
+
+def test_transform_input(score_card):
+    assert isinstance(score_card.data, dict)
+    assert isinstance(score_card.data['trailingMarketCap'], list)
+    assert isinstance(score_card.data['trailingPeRatio'], list)
+    assert isinstance(score_card.data['trailingPbRatio'], list)
+    assert isinstance(score_card.data['annualTotalRevenue'], list)
+    assert isinstance(score_card.data['annualNetIncome'], list)
+    assert isinstance(score_card.data['annualFreeCashFlow'], list)
+    assert score_card.data['trailingMarketCap'] == [5E11]
+    assert score_card.data['trailingPeRatio'] == [86.222]
+    assert score_card.data['trailingPbRatio'] == [20]
+    assert score_card.data['annualTotalRevenue'] == [2.55E9, 3.16E9, 5.02E10, 8.11E9]
+    assert score_card.data['annualNetIncome'] == [-8.2E7, 5.9E7, 5.9E8, 1.3E9]
+    assert score_card.data['annualFreeCashFlow'] == [10E8, 3E9, 4.5E9, 7.5E9]
+
+
 def test_score_market_cap():
     ...
+
 
 def test_score_pe_pb():
     ...
 
+
 def test_score_freecashflow():
     ...
+
 
 def test_score_growth():
     ...

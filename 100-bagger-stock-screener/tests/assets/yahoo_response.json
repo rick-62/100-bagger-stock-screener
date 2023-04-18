@@ -1,0 +1,213 @@
+{
+	"timeseries": {
+		"result": [
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"annualFreeCashFlow"
+					]
+				},
+				"timestamp": [
+					1577750400,
+					1609372800,
+					1640908800,
+					1672444800
+				],
+				"annualFreeCashFlow": [
+					{
+						"asOfDate": "2019-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 10E8
+						}
+					},
+					{
+						"asOfDate": "2020-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 3E9
+						}
+					},
+					{
+						"asOfDate": "2021-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 4.5E9
+						}
+					},
+					{
+						"asOfDate": "2022-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 7.5E9
+						}
+					}
+				]
+			},
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"trailingPbRatio"
+					]
+				},
+				"timestamp": [
+					1662076800
+				],
+				"trailingPbRatio": [
+					{
+						"asOfDate": "2022-09-02",
+						"periodType": "TTM",
+						"reportedValue": {
+							"raw": 20
+						}
+					}
+				]
+			},
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"trailingMarketCap"
+					]
+				},
+				"timestamp": [
+					1662076800
+				],
+				"trailingMarketCap": [
+					{
+						"asOfDate": "2022-09-02",
+						"periodType": "TTM",
+						"reportedValue": {
+							"raw": 5E11						}
+					}
+				]
+			},
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"annualNetIncome"
+					]
+				},
+				"timestamp": [
+					1577750400,
+					1609372800,
+					1640908800,
+					1672444800
+				],
+				"annualNetIncome": [
+					{
+						"asOfDate": "2019-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": -8.2E7						}
+					},
+					{
+						"asOfDate": "2020-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 5.9E7						}
+					},
+					{
+						"asOfDate": "2021-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 5.9E8						}
+					},
+					{
+						"asOfDate": "2022-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 1.3E9						}
+					}
+				]
+			},
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"trailingPeRatio"
+					]
+				},
+				"timestamp": [
+					1662076800
+				],
+				"trailingPeRatio": [
+					{
+						"asOfDate": "2022-09-02",
+						"periodType": "TTM",
+						"reportedValue": {
+							"raw": 86.222						}
+					}
+				]
+			},
+			{
+				"meta": {
+					"symbol": [
+						"XXXX"
+					],
+					"type": [
+						"annualTotalRevenue"
+					]
+				},
+				"timestamp": [
+					1577750400,
+					1609372800,
+					1640908800,
+					1672444800
+				],
+				"annualTotalRevenue": [
+					{
+						"asOfDate": "2019-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 2.55E9						}
+					},
+					{
+						"asOfDate": "2020-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 3.16E9						}
+					},
+					{
+						"asOfDate": "2021-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 5.02E10						}
+					},
+					{
+						"asOfDate": "2022-12-31",
+						"periodType": "12M",
+						"currencyCode": "USD",
+						"reportedValue": {
+							"raw": 8.11E9						}
+					}
+				]
+			}
+		],
+		"error": null
+	}
+}

@@ -1,5 +1,6 @@
 
 import datetime as dt
+import json
 from typing import List
 
 import requests
@@ -45,10 +46,25 @@ def get_yahoo_json_data(symbol: str, fields: List[str]):
 
 
 
+
+
 class Score:
 
     def __init__(self, json_response: json):
-        self.result = json_response["timeseries"]["result"]
+        self.data = self.transform_input(json_response)
+
+
+    def transform_input(self, json_response):
+        """transform yahoo json response to simplified lookup dict"""
+        data = {}
+        for result in json_response['timeseries']['result']:
+            field_name = result['meta']['type'][0]
+            data[field_name] = [point['reportedValue']['raw'] for point in result[field_name]]
+        return data
+
+
+
+    
 
 
 
