@@ -65,8 +65,19 @@ def test_transform_input(score_card):
     assert score_card.data['annualFreeCashFlow'] == [10E8, 3E9, 4.5E9, 7.5E9]
 
 
-def test_score_market_cap():
-    ...
+@pytest.mark.parametrize("market_cap, result", [
+    (0, 100),
+    (499E6, 100),
+    (1E9, 94),
+    (10E9, 51),
+    (50E9, 0),
+    (51E9, 0),
+    (5E11, 0)
+])
+def test_score_market_cap(market_cap, result):
+    score_card = app.Score
+    score_card.data['trailingMarketCap'] = [market_cap]
+    assert score_card.score_market_cap() == result
 
 
 def test_score_pe_pb():

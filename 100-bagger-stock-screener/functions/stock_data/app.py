@@ -1,7 +1,7 @@
 
 import datetime as dt
 import json
-from typing import List
+from typing import List, Dict
 
 import requests
 from typeguard import typechecked
@@ -49,18 +49,43 @@ def get_yahoo_json_data(symbol: str, fields: List[str]):
 
 
 class Score:
+    """Object for calculating scores based on stock fundamentals"""
+
+    data: Dict = {} 
 
     def __init__(self, json_response: json):
         self.data = self.transform_input(json_response)
 
 
-    def transform_input(self, json_response):
+    def transform_input(self, json_response: json):
         """transform yahoo json response to simplified lookup dict"""
         data = {}
         for result in json_response['timeseries']['result']:
             field_name = result['meta']['type'][0]
             data[field_name] = [point['reportedValue']['raw'] for point in result[field_name]]
         return data
+
+
+    @classmethod
+    def score_market_cap(cls):
+        """Calculate a score based on market cap amount"""
+        market_cap = cls.data['trailingMarketCap'][0]
+
+        # lower bound
+        if market_cap < 500E6:
+            return 100
+
+        # upper bound
+        elif market_cap >= 50E9:
+            return 0
+
+        # Gradient
+        else:
+            return int(100*(1-(market_cap/50E9))**3)
+
+    
+
+
 
 
 
