@@ -84,6 +84,29 @@ class Score:
             return int(100*(1-(market_cap/50E9))**3)
 
     
+    @classmethod
+    def score_pe(cls):
+        """Calculate score based on recent P/E ration"""
+        pe = cls.data['trailingPeRatio'][-1]
+
+        # lower bound
+        if pe <= 0:
+            return 0
+
+        # upper bound
+        elif pe > 50:
+            return 0
+
+        # Gradient
+        else:
+            return int(11*(1-(pe/50)**2))
+
+
+    @classmethod
+    def score_pb():
+        ...
+
+    
 
 
 

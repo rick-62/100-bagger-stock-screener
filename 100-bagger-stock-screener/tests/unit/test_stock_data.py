@@ -7,6 +7,7 @@ import requests
 from freezegun import freeze_time
 from functions.stock_data import app
 from typeguard import TypeCheckError
+from unittest import result
 
 
 def load_params_from_json(json_path):
@@ -80,8 +81,33 @@ def test_score_market_cap(market_cap, result):
     assert score_card.score_market_cap() == result
 
 
-def test_score_pe_pb():
-    ...
+@pytest.mark.parametrize("value, result", [
+    ([1,0,-1], 0),
+    ([1,2,0], 0),
+    ([10,20,50], 0),
+    ([5,10,40], 3),
+    ([0,2,1], 10),
+    ([0,5,10], 10),
+    ([10,20,60], 0),
+])
+def test_score_pe(value, result):
+    score_card = app.Score
+    score_card.data['trailingPeRatio'] = value
+    assert score_card.score_pe() == result
+
+
+# @pytest.mark.parametrize("value, result", [
+#     (-1, 0),
+#     (0, 0),
+#     (50, 0),
+#     (40, 3),
+#     (1, 10),
+#     (10, 10)
+# ])
+# def test_score_pb():
+#     score_card = app.Score
+#     score_card.data['trailingPbRatio'] = [value]
+#     assert score_card.score_pb() == result
 
 
 def test_score_freecashflow():
