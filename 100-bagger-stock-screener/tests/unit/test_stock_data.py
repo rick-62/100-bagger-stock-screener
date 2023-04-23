@@ -96,18 +96,20 @@ def test_score_pe(value, result):
     assert score_card.score_pe() == result
 
 
-# @pytest.mark.parametrize("value, result", [
-#     (-1, 0),
-#     (0, 0),
-#     (50, 0),
-#     (40, 3),
-#     (1, 10),
-#     (10, 10)
-# ])
-# def test_score_pb():
-#     score_card = app.Score
-#     score_card.data['trailingPbRatio'] = [value]
-#     assert score_card.score_pb() == result
+@pytest.mark.parametrize("value, result", [
+    ([0,0,-1], 0),
+    ([-1,3,0], 0),
+    ([30,40,50], 0),
+    ([10,20,40], 0),
+    ([0,0,1], 10),
+    ([3,4,10], 0),
+    ([1,2,4], 9),
+    ([1,4,6], 7)
+])
+def test_score_pb(value, result):
+    score_card = app.Score
+    score_card.data['trailingPbRatio'] = value
+    assert score_card.score_pb() == result
 
 
 def test_score_freecashflow():

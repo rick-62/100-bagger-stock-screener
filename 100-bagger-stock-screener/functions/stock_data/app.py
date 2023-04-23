@@ -86,7 +86,7 @@ class Score:
     
     @classmethod
     def score_pe(cls):
-        """Calculate score based on recent P/E ration"""
+        """Calculate score based on recent P/E ratio"""
         pe = cls.data['trailingPeRatio'][-1]
 
         # lower bound
@@ -103,8 +103,21 @@ class Score:
 
 
     @classmethod
-    def score_pb():
-        ...
+    def score_pb(cls):
+        """Calculate score based on recent P/B ratio"""
+        pb = cls.data['trailingPbRatio'][-1]
+
+        # lower bound
+        if pb <= 0:
+            return 0
+
+        # upper bound
+        elif pb > 10:
+            return 0
+
+        # Gradient
+        else:
+            return int(11*(1-(pb/10)**2))
 
     
 
