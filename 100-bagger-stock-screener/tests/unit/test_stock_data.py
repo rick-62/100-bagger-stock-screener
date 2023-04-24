@@ -112,8 +112,19 @@ def test_score_pb(value, result):
     assert score_card.score_pb() == result
 
 
-def test_score_freecashflow():
-    ...
+@pytest.mark.parametrize("value, result", [
+    ([0,0,0], 0),
+    ([0,0,-1], 0),
+    ([-1,-2,3], 10),
+    ([-1,-2,-0.5], 5),
+    ([0,0,1], 10),
+    ([10,20,5], 5),
+    ([2], 5),
+])
+def test_score_freecashflow(value, result):
+    score_card = app.Score
+    score_card.data['annualFreeCashFlow'] = value
+    assert score_card.score_freecashflow() == result
 
 
 def test_score_growth():

@@ -120,6 +120,23 @@ class Score:
             return int(11*(1-(pb/10)**2))
 
     
+    @classmethod
+    def score_freecashflow(cls):
+        """Calculate score based on recent free cash flow"""
+        fcf = cls.data['annualFreeCashFlow']
+
+        score = (
+
+            # growth
+            5 * (fcf[-1] > fcf[0]) + 
+
+            # positive
+            5 * (fcf[-1] > 0)
+            
+        )
+
+        return score
+    
 
 
 
