@@ -127,8 +127,25 @@ def test_score_freecashflow(value, result):
     assert score_card.score_freecashflow() == result
 
 
-def test_score_growth():
-    ...
+
+@pytest.mark.parametrize("value, result", [
+    ([0,0,0], 0),       # no growth
+    ([1,2,3], 3),       # fast growth
+    ([1,1.2,1.5], 5),   # steady growth
+    ([5,6,7],  5),      # steady growth
+    ([7,6,5], 0),       # negative growth
+    ([7,5,7], 0),       # no growth
+    ([1], 0),           # no date/growth
+    ([9,12], 5),        # steady growth    
+])
+def test_score_revenue_profit_growth(value, result):
+    score_card = app.Score
+    score_card.data['annualTotalRevenue'] = value
+    score_card.data['annualNetIncome'] = value
+    assert score_card.score_revenue_profit_growth('profit') == result
+    assert score_card.score_revenue_profit_growth('revenue') == result
+
+
 
 
 

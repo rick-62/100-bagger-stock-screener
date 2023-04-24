@@ -45,9 +45,6 @@ def get_yahoo_json_data(symbol: str, fields: List[str]):
     return response.json()
 
 
-
-
-
 class Score:
     """Object for calculating scores based on stock fundamentals"""
 
@@ -136,15 +133,38 @@ class Score:
         )
 
         return score
-    
 
 
+    @classmethod
+    def score_revenue_profit_growth(cls, measure: str):
+        """
+        Calculate score based on recent revenue & profit growth.
+        measure is either 'revenue' or 'profit'.
+        """
 
+        field = 'annualNetIncome' if measure == "profit" else "annualTotalRevenue"
+                    
+        v1 = cls.data[field][0]
+        v2 = cls.data[field][-1]
 
+        try:
+            growth_rate = (v2 - v1) / v1
+            avg_growth_rate = growth_rate / (len(cls.data[field]) - 1)
+        except ZeroDivisionError:
+            return 0
 
-    
+        # steady growth
+        if 0.1 < avg_growth_rate < 0.5:
+            return 5
 
+        # no growth
+        if avg_growth_rate <= 0:
+            return 0
 
+        # slow or fast growth
+        else:
+            return 3
+     
 
 def lambda_handler(event, context):
     """Lambda function which downloads Yahoo JSON data for a provided stock,
@@ -177,13 +197,8 @@ def lambda_handler(event, context):
 
     response = get_yahoo_json_data(symbol, fields=FIELDS)
 
-    # need to figure out how to store in DynamoDB
-
-    # Best to store as JSON into one dymamo field - see code example in chat 
-    # field flagging if issue with requests or reason for missing data
-    # run through pydantic model to check value etc make sense
-    # Any issues need to be logged
-    # Dpendent on error, if requests issue then fail else try best to get into DB
+    # TODO: Calculate total score using Score object (separate function)
+    # TODO: Return symbol, plus score
 
 
 
