@@ -146,6 +146,16 @@ def test_score_revenue_profit_growth(value, result):
     assert score_card.score_revenue_profit_growth('revenue') == result
 
 
+def test_get_total_score():
+    score_card = app.Score
+    score_card.data['trailingMarketCap'] = [5E11]
+    score_card.data['trailingPeRatio'] = [86.222]
+    score_card.data['trailingPbRatio'] = [20]
+    score_card.data['annualTotalRevenue'] = [2.55E9, 3.16E9, 5.02E10, 8.11E9]
+    score_card.data['annualNetIncome'] = [-8.2E7, 5.9E7, 5.9E8, 1.3E9]
+    score_card.data['annualFreeCashFlow'] = [10E8, 3E9, 4.5E9, 7.5E9]
+
+    assert score_card.get_total_score() == 13
 
 
 

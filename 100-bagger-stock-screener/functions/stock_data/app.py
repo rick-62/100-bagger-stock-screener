@@ -164,21 +164,31 @@ class Score:
         # slow or fast growth
         else:
             return 3
+
+
+    @classmethod
+    def get_total_score(cls):
+        """Calculate total score for a given stock"""
+        return (
+            cls.score_market_cap() +
+            cls.score_pe() +
+            cls.score_pb() +
+            cls.score_freecashflow() +
+            cls.score_revenue_profit_growth("profit") +
+            cls.score_revenue_profit_growth("revenue")
+        )
      
 
 def lambda_handler(event, context):
-    """Lambda function which downloads Yahoo JSON data for a provided stock,
-    and returning original data, plus additional. 
+    """Lambda function which downloads Yahoo JSON data for a provided stock, and 
+    calculated a simple score to prioritise. 
 
     Downloads key JSON data from Yahoo:
-    - blah
-    - blah
-    - blah
-
-    Additionally, creates new data:
-    - scores?
-    - amounts?
-    - values?
+    - Market Capitalisation
+    - PE/PB ratios
+    - Free Cash Flow
+    - Total Revenu
+    - Net Income
   
     Parameters
     ----------
@@ -190,15 +200,20 @@ def lambda_handler(event, context):
 
     Returns
     ------
-        dict: stock data provided in form stock:dict[attribute:value]
+        dict: stock symbol, score & timestamp provided in form stock:dict[attribute:value]
     """
     
     symbol = event["yahoo_symbol"]
 
-    response = get_yahoo_json_data(symbol, fields=FIELDS)
+    json_response = get_yahoo_json_data(symbol, fields=FIELDS)
 
-    # TODO: Calculate total score using Score object (separate function)
-    # TODO: Return symbol, plus score
+    score_card = Score(json_response)
+
+    return {
+        "symbol": symbol,
+        "total_score": score_card.get_total_score(),
+        "timestamp": dt.datetime.now().isoformat()
+    }
 
 
 
