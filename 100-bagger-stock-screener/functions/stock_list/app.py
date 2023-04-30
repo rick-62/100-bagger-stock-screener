@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 logger = Logger()
 
 SHEET_ID = "14Ep-CmoqWxrMU8HshxthRcdRW8IsXvh3n2-ZHVCzqzQ"
+GID = "1855920257"
 ISA_ELIGIBLE = True
 REMOVE_ETF = True
 MIC_REFERENCE = {
@@ -162,7 +163,7 @@ class FreetradeModel(BaseModel):
 def get_stock_list() -> List[Dict]:
     """Downloads stock list from Freetrade Google Sheet, and returns as dict"""
 
-    endpoint = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+    endpoint = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 
     return pd.read_csv(endpoint).to_dict(orient='records')
 

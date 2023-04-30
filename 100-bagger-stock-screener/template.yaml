@@ -39,7 +39,7 @@ Resources:
       CodeUri: functions/stock_list/
       Handler: app.lambda_handler
       Runtime: python3.8
-      Timeout: 10
+      Timeout: 20
       Architectures:
         - x86_64
 
@@ -49,7 +49,7 @@ Resources:
       CodeUri: functions/stock_data/
       Handler: app.lambda_handler
       Runtime: python3.8
-      Timeout: 6
+      Timeout: 20
       Architectures:
         - x86_64
 

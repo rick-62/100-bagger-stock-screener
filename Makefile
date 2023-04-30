@@ -1,6 +1,7 @@
 
-test:
-	echo I am a test
+local:
+	samlocal build --template 100-bagger-stock-screener/template.yaml
+	samlocal deploy --guided
 
-looptest:
+loop:
 	pytest --looponfail
