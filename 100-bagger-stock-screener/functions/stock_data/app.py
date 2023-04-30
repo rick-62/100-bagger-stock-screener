@@ -50,11 +50,12 @@ class Score:
 
     data: Dict = {} 
 
-    def __init__(self, json_response: json):
-        self.data = self.transform_input(json_response)
+    @classmethod
+    def __init__(cls, json_response: json):
+        cls.data = cls.transform_input(json_response)
 
-
-    def transform_input(self, json_response: json):
+    @classmethod
+    def transform_input(cls, json_response: json):
         """transform yahoo json response to simplified lookup dict"""
         data = {}
         for result in json_response['timeseries']['result']:
@@ -216,6 +217,8 @@ def lambda_handler(event, context):
     }
 
 
+if __name__ == "__main__":
+    print(lambda_handler({"yahoo_symbol": "AAPL"}, None))
 
 
 
