@@ -1,8 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "100-bagger-stock-screener"
+stack_name = "l00-bagger-stock-screener"
 resolve_s3 = true
-s3_prefix = "100-bagger-stock-screener"
+s3_prefix = "l00-bagger-stock-screener"
 region = "eu-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
