@@ -2,7 +2,7 @@
 local:
 	samlocal validate --template 100-bagger-stock-screener/template.yaml
 	samlocal build --template 100-bagger-stock-screener/template.yaml
-	samlocal deploy --guided
+	samlocal deploy --no-confirm-changeset
 
 deploy:
 	sam validate --template 100-bagger-stock-screener/template.yaml

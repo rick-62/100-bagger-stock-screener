@@ -30,11 +30,11 @@ def lambda_handler(event, context):
     returning data contained within event argument
     """
 
-    # Get the recipient from the environment
-    recipient = os.environ['RECIPIENT']
+    # Get the recipient from the input event
+    recipient = event['RECIPIENT']
 
     # Create an SES resource
-    ses = boto3.resource('ses')
+    ses = boto3.client('ses')
 
     response = ses.send_email(
         Source=recipient,
@@ -49,7 +49,7 @@ def lambda_handler(event, context):
             },
             'Body': {
                 'Text': {
-                    'Data': create_email_body(event)
+                    'Data': create_email_body(event['data'])
                 },
             },
         },
