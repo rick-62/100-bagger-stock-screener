@@ -1,2 +1,1 @@
-requests
-typeguard
+boto3
