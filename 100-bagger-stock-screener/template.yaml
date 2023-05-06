@@ -53,6 +53,18 @@ Resources:
       Architectures:
         - x86_64
 
+
+  StockEmailFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: functions/stock_email/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Timeout: 20
+      Architectures:
+        - x86_64
+
+
   StockTable:
     Type: AWS::Serverless::SimpleTable 
     Properties:

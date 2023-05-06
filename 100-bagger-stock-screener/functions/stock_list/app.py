@@ -168,7 +168,7 @@ def get_stock_list() -> List[Dict]:
     return pd.read_csv(endpoint).to_dict(orient='records')
 
 
-def shuffle_and_filter_stock_list(records: List[Dict], sample: int=5) -> List[Dict]:
+def shuffle_and_filter_stock_list(records: List[Dict], sample: int=-1) -> List[Dict]:
     """Return a random sample of eligible stocks"""
     
     random.shuffle(records)
@@ -196,7 +196,7 @@ def shuffle_and_filter_stock_list(records: List[Dict], sample: int=5) -> List[Di
             logger.info(f"{record['Title']} excluded. Reason: {e}")
             continue
         
-        filtered_records.append(record)
+        filtered_records.append(dict(model))
 
         if len(filtered_records) == sample:
             break
@@ -222,7 +222,8 @@ def lambda_handler(event, context):
     Parameters
     ----------
     event: dict, required
-        Input event to the Lambda function
+        Input event to the Lambda function, which includes:
+            - sample: number of valid stocks to output (default: all [-1])
 
     context: object, required
         Lambda Context runtime methods and attributes
@@ -234,6 +235,8 @@ def lambda_handler(event, context):
 
     records = get_stock_list()
 
-    filtered_records = shuffle_and_filter_stock_list(records, sample=5)
+    filtered_records = shuffle_and_filter_stock_list(records, event.get("sample", -1))
+
+    logger.info(f"Selected stocks: {filtered_records}")
 
     return filtered_records

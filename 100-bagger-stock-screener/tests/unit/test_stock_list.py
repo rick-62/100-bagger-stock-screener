@@ -163,7 +163,8 @@ def test_shuffle_and_filter_stock_list(Freetrade_records):
     # test filters only one record
     result = app.shuffle_and_filter_stock_list(Freetrade_records, sample=1)
     assert len(result) == 1
-    assert result[0]['ISIN'] == "IE00BCRY6557"
+    assert result[0]['isin'] == "IE00BCRY6557"
+    assert result[0]['yahoo_symbol'] == "EXAI.L"
 
     # test filters five records
     result = app.shuffle_and_filter_stock_list(Freetrade_records, sample=5)
