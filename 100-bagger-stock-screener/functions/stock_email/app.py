@@ -1,7 +1,7 @@
-import boto3
 import os
+from typing import Dict, List
 
-from typing import List, Dict
+import boto3
 
 
 def create_email_body(data: List[Dict]) -> str:
@@ -31,11 +31,13 @@ def lambda_handler(event, context):
     """
 
     # Get the recipient from the input event
+    # TODO: get recipient from email-list (hardcode into function?)
     recipient = event['RECIPIENT']
 
     # Create an SES resource
     ses = boto3.client('ses')
 
+    # loop through recipients from email-list
     response = ses.send_email(
         Source=recipient,
         Destination={

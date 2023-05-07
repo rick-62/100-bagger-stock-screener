@@ -33,6 +33,7 @@ Resources:
   #       - DynamoDBWritePolicy:
   #           TableName: !Ref TransactionTable
 
+
   StockListFunction:
     Type: AWS::Serverless::Function 
     Properties:
@@ -53,7 +54,6 @@ Resources:
       Architectures:
         - x86_64
 
-
   StockEmailFunction:
     Type: AWS::Serverless::Function 
     Properties:
@@ -63,7 +63,6 @@ Resources:
       Timeout: 20
       Architectures:
         - x86_64
-
 
   StockTable:
     Type: AWS::Serverless::SimpleTable 
