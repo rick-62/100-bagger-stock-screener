@@ -63,6 +63,9 @@ Resources:
       Timeout: 20
       Architectures:
         - x86_64
+      Policies:
+        - AmazonSESFullAccess
+
 
   StockTable:
     Type: AWS::Serverless::SimpleTable 
@@ -73,6 +76,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+
+
 
 
 # Outputs:

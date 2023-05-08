@@ -196,7 +196,11 @@ def shuffle_and_filter_stock_list(records: List[Dict], sample: int=-1) -> List[D
             logger.info(f"{record['Title']} excluded. Reason: {e}")
             continue
         
-        filtered_records.append(dict(model))
+        # filter dict(model) to only required keys
+        selected_keys = ['yahoo_symbol', 'isin']
+        filtered_records.append(
+            {k: v for k, v in dict(model).items() if k in selected_keys}
+        )
 
         if len(filtered_records) == sample:
             break

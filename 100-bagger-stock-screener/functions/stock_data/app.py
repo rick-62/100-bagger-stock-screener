@@ -204,13 +204,17 @@ def lambda_handler(event, context):
         dict: stock symbol, score & timestamp provided in form stock:dict[attribute:value]
     """
     
-    json_response = get_yahoo_json_data(event["yahoo_symbol"], fields=FIELDS)
+    yahoo_symbol = event["yahoo_symbol"]
+
+    json_response = get_yahoo_json_data(yahoo_symbol, fields=FIELDS)
 
     score_card = Score(json_response)
 
     return {
+        "Ticker": yahoo_symbol,
         "ISIN": event["isin"],
-        "total_score": score_card.get_total_score(),
+        "Market cap": score_card.data["trailingMarketCap"][0],
+        "Total score": score_card.get_total_score(),
         "timestamp": dt.datetime.now().isoformat()
     }
 
