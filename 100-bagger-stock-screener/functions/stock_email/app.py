@@ -4,6 +4,9 @@ from typing import Dict, List
 import boto3
 
 
+CONTACT_LIST = "email-list"
+
+
 def create_email_body(data: List[Dict]) -> str:
     """based on list of input data, create an email body"""
 
@@ -30,34 +33,33 @@ def lambda_handler(event, context):
     returning data contained within event argument
     """
 
-    # Get the recipient from the input event
-    # TODO: get recipient from email-list (hardcode into function?)
-    recipient = event['RECIPIENT']
-
     # Create an SES resource
     ses = boto3.client('ses')
 
     # loop through recipients from email-list
-    response = ses.send_email(
-        Source=recipient,
-        Destination={
-            'ToAddresses': [
-                recipient,
-            ],
-        },
-        Message={
-            'Subject': {
-                'Data': 'Stock list',
+    for contact in ses.list_contacts(ContactListName=CONTACT_LIST)['Contacts']:
+
+        recipient = contact['EmailAddress']
+
+        response = ses.send_email(
+            Source=recipient,
+            Destination={
+                'ToAddresses': [
+                    recipient,
+                ],
             },
-            'Body': {
-                'Text': {
-                    'Data': create_email_body(event['data'])
+            Message={
+                'Subject': {
+                    'Data': 'Stock list',
+                },
+                'Body': {
+                    'Text': {
+                        'Data': create_email_body(event['data'])
+                    },
                 },
             },
-        },
-    )
+        )
 
-    return response
     
     
 
