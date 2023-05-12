@@ -37,9 +37,7 @@ def lambda_handler(event, context):
     ses = boto3.client('ses')
 
     # loop through recipients from email-list
-    for contact in ses.list_contacts(ContactListName=CONTACT_LIST)['Contacts']:
-
-        recipient = contact['EmailAddress']
+    for recipient in ses.list_verified_email_addresses().get('VerifiedEmailAddresses'):
 
         response = ses.send_email(
             Source=recipient,
@@ -54,7 +52,7 @@ def lambda_handler(event, context):
                 },
                 'Body': {
                     'Text': {
-                        'Data': create_email_body(event['data'])
+                        'Data': create_email_body(event)
                     },
                 },
             },

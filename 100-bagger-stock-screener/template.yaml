@@ -65,6 +65,12 @@ Resources:
         - x86_64
       Policies:
         - AmazonSESFullAccess
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: "*"
 
 
   StockTable:
