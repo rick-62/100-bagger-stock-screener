@@ -1,0 +1,105 @@
+{
+  "Comment": "State Machine to process Freetrade company stocks, extract a random sample, scrape additional data, and email",
+  "StartAt": "Get Stock List",
+  "States": {
+    "Get Stock List": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${StockListFunctionArn}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Process stock list"
+    },
+    "Process stock list": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Wait",
+        "States": {
+          "Wait": {
+            "Type": "Wait",
+            "Seconds": 1,
+            "Next": "Scrape yahoo stock data"
+          },
+          "Scrape yahoo stock data": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${StockDataFunctionArn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 2,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Success",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Failure"
+              }
+            ]
+          },
+          "Failure": {
+            "Type": "Pass",
+            "Result": {
+              "success": false
+            },
+            "End": true,
+            "ResultPath": null
+          },
+          "Success": {
+            "Type": "Pass",
+            "Result": {
+              "success": true
+            },
+            "End": true,
+            "ResultPath": null
+          }
+        }
+      },
+      "Next": "Email results",
+      "InputPath": "$[0:5]",
+      "MaxConcurrency": 1
+    },
+    "Email results": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${StockEmailFunctionArn}"
+      },
+      "End": true
+    }
+  }
+}
